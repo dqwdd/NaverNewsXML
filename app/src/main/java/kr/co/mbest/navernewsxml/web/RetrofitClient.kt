@@ -1,5 +1,6 @@
 package kr.co.mbest.navernewsxml.web
 
+import com.box.retrofit_custom.NetworkResponseAdapterFactory
 import com.tickaroo.tikxml.TikXml
 import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import okhttp3.OkHttpClient
@@ -20,6 +21,7 @@ object RetrofitClient {
                         TikXml.Builder().exceptionOnUnreadXml(false).build()
                     )
                 )
+                .addCallAdapterFactory(NetworkResponseAdapterFactory())
                 .build()
         return instance!!
     }

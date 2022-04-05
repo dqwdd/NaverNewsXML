@@ -2,9 +2,14 @@ package kr.co.mbest.navernewsxml
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.box.retrofit_custom.NetworkResponse
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kr.co.mbest.navernewsxml.data.Item
 import kr.co.mbest.navernewsxml.data.RssFeed
 import kr.co.mbest.navernewsxml.databinding.ActivityMainBinding
@@ -43,42 +48,51 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerNews.layoutManager = LinearLayoutManager(this)
 
         binding.buttonSearch.setOnClickListener {
-
-            getNewsInformation()
-
-
-
+//            lifecycleScope.launch {
+//                getNewsInformation()
+//            }
+            aa(binding.editSearch.text.toString())
         }//클릭버튼
 
     }
 
-
-    fun getNewsInformation() {
-        var inputKeyword = binding.editSearch.text.toString()
-        apiService.getRequestNewsList(clientId, clientSecret, "날씨")!!.enqueue(object : Callback<RssFeed?> {
-                override fun onResponse(
-                    call: Call<RssFeed?>,
-                    response: Response<RssFeed?>
-                ) {
-                    if (response.isSuccessful) {
-
-                        Log.d("응답 성공", response.body()!!.toString())
-                        val basicResponse = response.body()!!
-                        mItemList.clear()
-                        mItemList.addAll(basicResponse.channel?.item!!)
-
-                        mRecyclerAdapter.notifyDataSetChanged()
-
-                    } else {
-                        Log.d("응답 실패", "${call.isCanceled.toString()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<RssFeed?>, t: Throwable) {
-                    Log.d("연결 실패", call.toString())
-                    Log.d("연결 실패2", t.message.toString())
-                }
-            })
+    fun aa(str: String) {
+        lifecycleScope.launch {
+            when( val tt = apiService.getRequestNewsList(clientId, clientSecret, str) ) {
+                is NetworkResponse.Success -> Log.e("Main", "search: api success")
+                is NetworkResponse.ApiError -> Log.e("Main", "search: api error")
+                is NetworkResponse.NetworkError -> Log.e("Main", "search: network error")
+                is NetworkResponse.UnknownError -> Log.e("Main", "search: UnknownError")
+            }
+        }
     }
+
+//    private suspend fun getNewsInformation() {
+//        var inputKeyword = binding.editSearch.text.toString()
+//        apiService.getRequestNewsList(clientId, clientSecret, inputKeyword)!!.enqueue(object : Callback<RssFeed?> {
+//                override fun onResponse(
+//                    call: Call<RssFeed?>,
+//                    response: Response<RssFeed?>
+//                ) {
+//                    if (response.isSuccessful) {
+//
+//                        Log.d("응답 성공", response.body()!!.toString())
+//                        val basicResponse = response.body()!!
+//                        mItemList.clear()
+//                        mItemList.addAll(basicResponse.channel?.item!!)
+//
+//                        mRecyclerAdapter.notifyDataSetChanged()
+//
+//                    } else {
+//                        Log.d("응답 실패", "${call.isCanceled.toString()}")
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<RssFeed?>, t: Throwable) {
+//                    Log.d("연결 실패", call.toString())
+//                    Log.d("연결 실패2", t.message.toString())
+//                }
+//            })
+//    }
 
 }
